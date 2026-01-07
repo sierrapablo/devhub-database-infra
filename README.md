@@ -1,11 +1,8 @@
 # Infrastructure as Code with Terraform
+
 Template for IaC with Terraform
 
-[![Latest Release](https://img.shields.io/github/v/release/sierrapablo/infra-terraform-template?logo=github&style=flat-square)](https://github.com/sierrapablo/infra-terraform-template/releases)
-[![Stars](https://img.shields.io/github/stars/sierrapablo/infra-terraform-template?logo=github&style=flat-square)](https://github.com/sierrapablo/infra-terraform-template/stargazers)
-[![Terraform Validate](https://github.com/sierrapablo/infra-terraform-template/actions/workflows/validate.yaml/badge.svg)](https://github.com/sierrapablo/infra-terraform-template/actions/workflows/validate.yaml)
-[![Format Code](https://github.com/sierrapablo/infra-terraform-template/actions/workflows/format.yaml/badge.svg)](https://github.com/sierrapablo/infra-terraform-template/actions/workflows/format.yaml)
-
+[![Latest Release](https://img.shields.io/github/v/release/sierrapablo/devhub-database-infra?logo=github&style=flat-square)](https://github.com/sierrapablo/devhub-database-infra/releases)
 
 > **🚧 Active Development**: This project is currently under active construction. Features, modules, and architecture are evolving and are subject to change.
 
@@ -17,12 +14,12 @@ This repository contains the template for Infrastructure as Code (IaC) with Terr
 
 The project is organized into several key directories, each with its own specific documentation:
 
-| Directory                | Description                                                                                 | Documentation                                       |
-| ------------------------ | ------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Directory                | Description                                                                                 | Documentation                                     |
+| ------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------- |
 | **`terraform/`**         | The core infrastructure definition, including the `main` configuration and provider setups. | [View Documentation](./docs/terraform.md)         |
-| **`terraform/modules/`** | Reusable, self-contained Terraform modules.                                                   | [View Documentation](./docs/terraform-modules.md) |
+| **`terraform/modules/`** | Reusable, self-contained Terraform modules.                                                 | [View Documentation](./docs/terraform-modules.md) |
 | **`ci/`**                | Jenkins pipelines managing the release lifecycle and versioning (Gitflow).                  | [View Documentation](./docs/ci.md)                |
-| **`.github/workflows/`** | GitHub Actions workflows for continuous integration (Format, Validate) and GitHub Releases. | [View Documentation](./docs/github-workflows.md) |
+| **`.github/workflows/`** | GitHub Actions workflows for continuous integration (Format, Validate) and GitHub Releases. | [View Documentation](./docs/github-workflows.md)  |
 
 ### Features
 
@@ -35,10 +32,12 @@ The project is organized into several key directories, each with its own specifi
 
 ### Getting Started
 
-To get started, initialize a repository based on this template **cloning only `develop` branch**, then create manually `main`: `git checkout -b main` and switch to `develop` again. After that, **update VERSION** to `0.0.0`, commit and push changes. This push manually initializes *GitHub Actions* pipelines.
-> ℹ️ Note: you can start creating branches from `develop` to implement a real *GitFlow* strategy, or you can push over `develop` like a *Trunk-based* strategy.
+To get started, initialize a repository based on this template **cloning only `develop` branch**, then create manually `main`: `git checkout -b main` and switch to `develop` again. After that, **update VERSION** to `0.0.0`, commit and push changes. This push manually initializes _GitHub Actions_ pipelines.
+
+> ℹ️ Note: you can start creating branches from `develop` to implement a real _GitFlow_ strategy, or you can push over `develop` like a _Trunk-based_ strategy.
 
 ### Use with Jenkins
+
 If you have a Jenkins node, you can launch releases via [release.Jenkinsfile](./ci/release.Jenkinsfile). [View Documentation](./docs/ci.md).
 
 ## Credits
