@@ -2,12 +2,12 @@ pipeline {
   agent any
 
   parameters {
-    choice(name: 'BUMP', choices: ['X', 'Y', 'Z'], description: 'Which type of release (X=Major, Y=Minor, Z=Patch)')
+    choice(name: 'BUMP', choices: ['MAJOR', 'MINOR', 'PATCH'], description: 'Which type of release (MAJOR, MINOR, PATCH)')
   }
 
   environment {
     GIT_USER_NAME = 'Jenkins CI'
-    GIT_USER_EMAIL = 'ci-bot@jenkins'
+    GIT_USER_EMAIL = 'jenkins[bot]@noreply.jenkins.io'
   }
 
   stages {
@@ -17,37 +17,33 @@ pipeline {
       }
     }
 
-    stage('Read previous version') {
+    stage('Read package.json') {
       steps {
         script {
-          def rawVersion = sh(script: 'cat VERSION', returnStdout: true).trim()
-          if (!rawVersion.matches(/\d+\.\d+\.\d+/)) {
-            error "Invalid version format in VERSION file: '${rawVersion}'. Expected 'major.minor.patch'."
-          }
+          def rawVersion = sh(script: 'jq -r .version package.json', returnStdout: true).trim()
           def ver = rawVersion.tokenize('.')
 
           int major = ver[0].toInteger()
           int minor = ver[1].toInteger()
           int patch = ver[2].toInteger()
 
-          if (params.BUMP == 'X') {
+          if (params.BUMP == 'MAJOR') {
             major += 1
             minor = 0
             patch = 0
-          } else if (params.BUMP == 'Y') {
+          } else if (params.BUMP == 'MINOR') {
             minor += 1
             patch = 0
-          } else if (params.BUMP == 'Z') {
+          } else if (params.BUMP == 'PATCH') {
             patch += 1
           }
-
           env.NEW_VERSION = "${major}.${minor}.${patch}"
           echo "New calculated version: ${env.NEW_VERSION}"
         }
       }
     }
 
-    stage('Create release/x.y.z branch') {
+    stage('Create release branch') {
       steps {
         sshagent(credentials: ['github']) {
           script {
@@ -68,9 +64,11 @@ pipeline {
         sshagent(credentials: ['github']) {
           script {
             sh """
-              echo '${env.NEW_VERSION}' > VERSION
-              git add VERSION
-              git commit -m "Update version to ${env.NEW_VERSION}"
+              set -e
+              jq --arg v '${env.NEW_VERSION}' '.version = \$v' package.json > package.tmp.json
+              mv package.tmp.json package.json
+              git add package.json
+              git commit -m "chore: update version to ${env.NEW_VERSION}"
               git push origin release/${env.NEW_VERSION}
             """
           }
@@ -78,7 +76,7 @@ pipeline {
       }
     }
 
-    stage('Merge release/x.y.z into main') {
+    stage('Merge Release into Main') {
       steps {
         sshagent(credentials: ['github']) {
           script {
@@ -105,14 +103,59 @@ pipeline {
       }
     }
 
-    stage('Sync develop with main') {
+    stage('Generate Release Notes') {
+      steps {
+        script {
+          sh """
+            PREV_TAG=\$(git describe --tags --abbrev=0 "${env.NEW_VERSION}^" 2>/dev/null || echo "")
+            if [ -z "\$PREV_TAG" ]; then
+              git log --oneline > changes.txt
+            else
+              git log --oneline "\$PREV_TAG".."${env.NEW_VERSION}" > changes.txt
+            fi
+          """
+        }
+      }
+    }
+
+    stage('Create GitHub Release') {
+      steps {
+        withCredentials([string(credentialsId: 'github-repo-pat', variable: 'GITHUB_PAT')]) {
+          script {
+            def changes = readFile('changes.txt').trim()
+            def changesEscaped = changes.replace('"', '\\"').replace('\n', '\\n')
+
+            writeFile file: 'release.json', text: """
+            {
+              "tag_name": "${env.NEW_VERSION}",
+              "name": "Release ${env.NEW_VERSION}",
+              "body": "${changesEscaped}",
+              "draft": false,
+              "prerelease": false
+            }
+            """
+
+            sh """
+              curl -X POST \
+                -H "Authorization: token ${GITHUB_PAT}" \
+                -H "Accept: application/vnd.github+json" \
+                https://api.github.com/repos/sierrapablo/portfolio-web/releases \
+                -d @release.json
+            """
+            sh 'rm -f changes.txt release.json'
+          }
+        }
+      }
+    }
+
+    stage('Sync Develop with Main') {
       steps {
         sshagent(credentials: ['github']) {
           script {
             sh '''
               git checkout develop
               git pull origin develop
-              git merge main
+              git merge --ff-only main || git merge main
               git push origin develop
             '''
           }
@@ -120,6 +163,7 @@ pipeline {
       }
     }
   }
+
   post {
     success {
       echo """
