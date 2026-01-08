@@ -7,7 +7,7 @@ variable "project_name" {
 variable "environment" {
   description = "Entorno de despliegue"
   type        = string
-  default     = "prod"
+  default     = "dev"
 }
 
 variable "database_network_name" {
