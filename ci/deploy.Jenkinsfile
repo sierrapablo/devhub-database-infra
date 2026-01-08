@@ -12,8 +12,8 @@ pipeline {
     )
 
     choice(name: 'ENVIRONMENT', choices: ['prod', 'dev'], description: 'Qué entorno desplegar.')
-    string(name: 'EXTERNAL_PORT', default: '', description: 'Puerto externo del contenedor.')
-    string(name: 'INTERNAL_PORT', default: '', description: 'Puerto interno del contenedor.')
+    string(name: 'EXTERNAL_PORT', default: '5432', description: 'Puerto externo del contenedor.')
+    string(name: 'INTERNAL_PORT', default: '5432', description: 'Puerto interno del contenedor.')
   }
 
   environment {
