@@ -152,7 +152,7 @@ pipeline {
           sh """
             set -e
 
-            DB_HOST=\$(terraform output -raw postgres_host)
+            DB_HOST=\$(terraform output -raw postgres_container_name)
             DB_PORT="${params.EXTERNAL_PORT}"
             DB_NAME="${params.POSTGRES_DB}"
             DB_USER="${params.POSTGRES_USERNAME}"
@@ -169,7 +169,7 @@ pipeline {
       }
     }
   }
-  
+
   post {
     success {
       echo """
