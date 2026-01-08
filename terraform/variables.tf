@@ -13,7 +13,7 @@ variable "environment" {
 variable "database_network_name" {
   description = "Nombre de la red de la base de datos"
   type        = string
-  default     = var.project_name + "-" + var.environment + "-network"
+  default     = null
 }
 
 variable "database_network_external" {
