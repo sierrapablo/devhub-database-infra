@@ -139,7 +139,7 @@ pipeline {
               curl -X POST \
                 -H "Authorization: token ${GITHUB_PAT}" \
                 -H "Accept: application/vnd.github+json" \
-                https://api.github.com/repos/sierrapablo/portfolio-web/releases \
+                https://api.github.com/repos/sierrapablo/devhub-database-infra/releases \
                 -d @release.json
             """
             sh 'rm -f changes.txt release.json'
