@@ -8,9 +8,3 @@ variable "driver" {
   type        = string
   default     = "local"
 }
-
-variable "external" {
-  description = "Indica si el volumen es externo (no gestionado por Terraform)"
-  type        = bool
-  default     = false
-}

@@ -28,11 +28,6 @@ variable "postgres_volume_name" {
   default     = null
 }
 
-variable "postgres_volume_external" {
-  description = "Indica si el volumen de Postgres es externo"
-  type        = bool
-  default     = false
-}
 
 variable "postgres_container_name" {
   description = "Nombre del contenedor de Postgres"

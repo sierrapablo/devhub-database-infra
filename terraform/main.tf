@@ -8,8 +8,7 @@ module "databse_network" {
 module "postgres_volume" {
   source = "./modules/volume"
 
-  name     = local.postgres_volume_name
-  external = var.postgres_volume_external
+  name = local.postgres_volume_name
 }
 
 module "postgres" {
