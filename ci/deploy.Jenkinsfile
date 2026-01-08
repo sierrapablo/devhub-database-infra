@@ -152,18 +152,26 @@ pipeline {
           sh """
             set -e
 
+            DB_NET=\$(terraform output -raw database_network_name)
             DB_HOST=\$(terraform output -raw postgres_container_name)
-            DB_PORT="${params.EXTERNAL_PORT}"
-            DB_NAME="${params.POSTGRES_DB}"
+            DB_PORT="${params.INTERNAL_PORT}"
+
+            DB_NAME="${env.POSTGRES_DB_NAME}"
             DB_USER="${params.POSTGRES_USERNAME}"
             DB_PASS="${params.POSTGRES_PASSWORD}"
 
-            docker run --rm -e PGPASSWORD="\$DB_PASS" postgres:16 \\
+            echo "Ensuring DB '\$DB_NAME' exists on \$DB_HOST:\$DB_PORT (network=\$DB_NET)"
+
+            docker run --rm --network "\$DB_NET" -e PGPASSWORD="\$DB_PASS" postgres:16 \\
               psql -h "\$DB_HOST" -p "\$DB_PORT" -U "\$DB_USER" -d postgres -tAc \\
               "SELECT 1 FROM pg_database WHERE datname='\$DB_NAME';" | grep -q 1 \\
-            || docker run --rm -e PGPASSWORD="\$DB_PASS" postgres:16 \\
-              psql -h "\$DB_HOST" -p "\$DB_PORT" -U "\$DB_USER" -d postgres -c \\
-              "CREATE DATABASE \\"\$DB_NAME\\";"
+            && echo "Database '\$DB_NAME' already exists." \\
+            || (
+              echo "Creating database '\$DB_NAME'..." && \\
+              docker run --rm --network "\$DB_NET" -e PGPASSWORD="\$DB_PASS" postgres:16 \\
+                psql -h "\$DB_HOST" -p "\$DB_PORT" -U "\$DB_USER" -d postgres -c \\
+                "CREATE DATABASE \\"\$DB_NAME\\";"
+            )
           """
         }
       }
