@@ -1,57 +1,81 @@
-# Terraform Infrastructure
+# Infraestructura Terraform
 
-This directory contains the main Terraform configuration for a project. It serves as the root module that orchestrates the provisioning of infrastructure resources.
+Este directorio contiene la configuracion principal de Terraform. Actua como modulo raiz que orquesta la red Docker, el volumen persistente y el contenedor de Postgres.
 
-## Table of Contents
+## Indice
 
-- [Architecture](#architecture)
-- [Modules](#modules)
-- [Prerequisites](#prerequisites)
-- [Usage](#usage)
+- [Arquitectura](#arquitectura)
+- [Modulos](#modulos)
+- [Requisitos](#requisitos)
+- [Uso](#uso)
 
-## Architecture
+## Arquitectura
 
-The architecture of the infrastructure is defined by the `terraform/` directory:
+La infraestructura se define en el directorio `terraform/`:
 
-- `main.tf`: Main configuration.
-- `outputs.tf`: Configuration outputs.
-- `variables.tf`: Configuration variables.
-- `versions.tf`: Configuration versions.
-- `providers.tf`: Configuration providers.
-- `modules/`: Configuration modules.
+- `main.tf`: Configuracion principal e instancias de modulos.
+- `outputs.tf`: Outputs del modulo raiz.
+- `variables.tf`: Variables de configuracion.
+- `versions.tf`: Version de Terraform y proveedores.
+- `providers.tf`: Configuracion de proveedores.
+- `modules/`: Modulos reutilizables.
 
-## Modules
+## Modulos
 
-The infrastructure is composed of the following modules instantiated in `main.tf`:
+Los siguientes modulos se instancian desde `main.tf`:
 
-### Example - Hello World
+### Network
 
-- **Source**: `./modules/hello-world`
-- **Purpose**: Serve as an example of a module.
-- **Configuration**:
-  - `main.tf`: Main module configuration.
-  - `outputs.tf`: Module outputs.
-  - `variables.tf`: Module variables.
+- **Source**: `./modules/network`
+- **Proposito**: Red Docker dedicada para la base de datos.
+- **Configuracion**:
+  - `name`: Nombre de la red.
+  - `driver`: Driver de red (por defecto `bridge`).
+  - `external`: Si la red es externa (no gestionada por Terraform).
 
-## Prerequisites
+### Volume
 
-[Terraform](https://www.terraform.io/downloads.html) installed (version defined in `versions.tf`).
+- **Source**: `./modules/volume`
+- **Proposito**: Volumen persistente para los datos de Postgres.
+- **Configuracion**:
+  - `name`: Nombre del volumen.
+  - `driver`: Driver de volumen (por defecto `local`).
 
-## Usage
+### Postgres
 
-1.  **Initialize**: Download providers and modules.
+- **Source**: `./modules/postgres`
+- **Proposito**: Contenedor Docker de Postgres con red y volumen.
+- **Configuracion**:
+  - `name`: Nombre del contenedor.
+  - `image`: Imagen de Postgres.
+  - `network_name`: Red a la que se conecta.
+  - `volume_name`: Volumen de datos.
+  - `internal_port`: Puerto interno.
+  - `external_port`: Puerto expuesto.
+  - `database_name`: Nombre de la base de datos.
+  - `username`: Usuario de Postgres.
+  - `password`: Password de Postgres.
 
-    ```bash
-    terraform init
-    ```
+## Requisitos
 
-2.  **Plan**: Preview changes.
+[Terraform](https://www.terraform.io/downloads.html) instalado (version definida en `versions.tf`).
 
-    ```bash
-    terraform plan
-    ```
+## Uso
 
-3.  **Apply**: Create/Update resources.
-    ```bash
-    terraform apply
-    ```
+1. **Inicializar**: Descarga proveedores y modulos.
+
+   ```bash
+   terraform init
+   ```
+
+2. **Planificar**: Vista previa de cambios.
+
+   ```bash
+   terraform plan
+   ```
+
+3. **Aplicar**: Crear/actualizar recursos.
+
+   ```bash
+   terraform apply
+   ```

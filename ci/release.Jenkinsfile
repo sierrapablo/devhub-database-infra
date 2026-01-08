@@ -22,6 +22,9 @@ pipeline {
       steps {
         script {
           def rawVersion = sh(script: 'jq -r .version package.json', returnStdout: true).trim()
+          if (!rawVersion.matches(/\d+\.\d+\.\d+/)) {
+            error "Invalid version format in package.json: '${rawVersion}'. Expected 'major.minor.patch'."
+          }
           def ver = rawVersion.tokenize('.')
 
           int major = ver[0].toInteger()
@@ -173,7 +176,7 @@ pipeline {
         ==========================================
         Version: ${env.NEW_VERSION}
         Duration: ${currentBuild.durationString}
-        ==========================================""
+        ==========================================
       """
     }
     failure {

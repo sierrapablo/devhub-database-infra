@@ -1,38 +1,104 @@
-# CI/CD Directory
+# Directorio CI/CD
 
-This directory contains the Continuous Integration and Continuous Deployment (CI/CD) pipelines used for this project.
+Este directorio contiene los pipelines de Integracion Continua y Despliegue Continuo (CI/CD) del proyecto, ejecutados desde Jenkins.
 
-## Table of Contents
+## Indice
 
-- [Release Pipeline (`release.Jenkinsfile`)](#release-pipeline-releasejenkinsfile)
+- [Pipeline de release (`release.Jenkinsfile`)](#pipeline-de-release-releasejenkinsfile)
+- [Pipeline de deploy (`deploy.Jenkinsfile`)](#pipeline-de-deploy-deployjenkinsfile)
+- [Pipeline de format (`format.Jenkinsfile`)](#pipeline-de-format-formatjenkinsfile)
+- [Pipeline de SonarQube (`sonarqube.Jenkinsfile`)](#pipeline-de-sonarqube-sonarqubejenkinsfile)
 
 ## Pipelines
 
-### Release Pipeline (`release.Jenkinsfile`)
+### Pipeline de release (`release.Jenkinsfile`)
 
-This Jenkinsfile defines the automated release process for the project, following a Gitflow-based strategy. It handles version bumping, tagging, and branch synchronization.
+Automatiza el versionado y release siguiendo una estrategia basada en Gitflow.
 
-#### Parameters
+#### Parametros
 
-The pipeline accepts a single build parameter:
+- **`BUMP`**: Tipo de incremento de version semantica (`MAJOR`, `MINOR`, `PATCH`).
 
-- **`BUMP`**: Determines which part of the semantic version (`MAJOR.MINOR.PATCH`) to increment.
-  - `X`: **Major** version bump (e.g., 1.0.0 -> 2.0.0)
-  - `Y`: **Minor** version bump (e.g., 1.0.0 -> 1.1.0)
-  - `Z`: **Patch** version bump (e.g., 1.0.0 -> 1.0.1)
+#### Pasos del flujo
 
-#### Workflow Steps
+1. **Leer version actual** desde `package.json`.
+2. **Calcular nueva version** segun `BUMP`.
+3. **Crear rama de release** desde `develop`.
+4. **Actualizar `package.json`**, commitear y hacer push.
+5. **Merge a `main`** con `--no-ff`.
+6. **Crear tag** con la nueva version.
+7. **Generar notas** a partir del historial de commits.
+8. **Crear release en GitHub** via API.
+9. **Sincronizar `develop`** con `main`.
+10. **Limpieza** de la rama de release.
 
-1.  **Read Previous Version**: Reads the current version from the `VERSION` file in the project root.
-2.  **Calculate New Version**: increments the version numbers based on the selected `BUMP` parameter.
-3.  **Create Release Branch**: Creates a temporary branch `release/x.y.z` from `develop`.
-4.  **Update Version**: Writes the new version to `VERSION`, commits the change, and pushes the branch.
-5.  **Merge to Main**: Merges the release branch into `main` with `--no-ff`.
-6.  **Create Tag**: Tags the merge commit on `main` with the new version number.
-7.  **Sync Develop**: Merges `main` back into `develop` to ensure it has the latest version info and tags.
-8.  **Cleanup**: Deletes the temporary release branch.
+#### Requisitos
 
-#### Prerequisites
+- `package.json` debe contener un campo `version` valido (`major.minor.patch`).
+- Credenciales SSH en Jenkins con ID `github`.
+- Token `github-repo-pat` para crear releases en GitHub.
 
-- A `VERSION` file must exist in the root of the repository containing the current semantic version (e.g., `1.0.0`).
-- The Jenkins job must have SSH credentials configured (ID: `github`) to perform git operations (push, merge, tag).
+### Pipeline de deploy (`deploy.Jenkinsfile`)
+
+Despliega un tag concreto ejecutando Terraform y, si aplica, crea la base de datos.
+
+#### Parametros
+
+- **`TAG`**: Tag a desplegar (obligatorio).
+- **`ENVIRONMENT`**: Entorno (`prod`, `dev`).
+- **`EXTERNAL_PORT`**: Puerto externo del contenedor.
+- **`INTERNAL_PORT`**: Puerto interno del contenedor.
+- **`POSTGRES_USERNAME`**: Usuario de Postgres.
+- **`POSTGRES_PASSWORD`**: Password de Postgres.
+
+#### Pasos del flujo
+
+1. **Checkout** del tag seleccionado.
+2. **Validar parametros** (puertos enteros).
+3. **Preparar nombre de tfplan** con timestamp.
+4. **Terraform init, fmt y validate**.
+5. **Terraform plan** y registro del plan si hay cambios.
+6. **Terraform apply** con aprobacion manual.
+7. **Asegurar base de datos** en el contenedor de Postgres.
+8. **Limpieza** de artefactos de plan.
+
+#### Requisitos
+
+- Credenciales SSH en Jenkins con ID `github`.
+- Docker disponible en el nodo de Jenkins para ejecutar `psql` via contenedor.
+
+### Pipeline de format (`format.Jenkinsfile`)
+
+Formatea y valida Terraform en una rama seleccionada. Si hay cambios, commitea y hace push.
+
+#### Parametros
+
+- **`BRANCH_NAME`**: Rama objetivo (por defecto `develop`).
+
+#### Pasos del flujo
+
+1. **Checkout** de la rama.
+2. **Terraform init**.
+3. **Terraform fmt**.
+4. **Terraform validate**.
+5. **Commit y push** si hay cambios.
+
+#### Requisitos
+
+- Credenciales SSH en Jenkins con ID `github`.
+
+### Pipeline de SonarQube (`sonarqube.Jenkinsfile`)
+
+Ejecuta el analisis estatico en `develop` con SonarQube.
+
+#### Pasos del flujo
+
+1. **Checkout** de `develop`.
+2. **Detectar version** desde `package.json`.
+3. **Analisis SonarQube** con `sonar-scanner`.
+
+#### Requisitos
+
+- Credenciales SSH en Jenkins con ID `github`.
+- Configuracion de SonarQube en Jenkins (`withSonarQubeEnv('sonarqube')`).
+- Herramienta `sonar-scanner` instalada en Jenkins.
