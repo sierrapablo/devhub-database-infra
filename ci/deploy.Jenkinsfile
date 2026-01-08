@@ -145,31 +145,31 @@ pipeline {
         }
       }
     }
-  }
 
-  stage('Ensure Database Exists') {
-    steps {
-      dir('terraform') {
-        sh """
-          set -e
+    stage('Ensure Database Exists') {
+      steps {
+        dir('terraform') {
+          sh """
+            set -e
 
-          DB_HOST=\$(terraform output -raw postgres_host)
-          DB_PORT="${params.EXTERNAL_PORT}"
-          DB_NAME="${params.POSTGRES_DB}"
-          DB_USER="${params.POSTGRES_USERNAME}"
-          DB_PASS="${params.POSTGRES_PASSWORD}"
+            DB_HOST=\$(terraform output -raw postgres_host)
+            DB_PORT="${params.EXTERNAL_PORT}"
+            DB_NAME="${params.POSTGRES_DB}"
+            DB_USER="${params.POSTGRES_USERNAME}"
+            DB_PASS="${params.POSTGRES_PASSWORD}"
 
-          docker run --rm -e PGPASSWORD="\$DB_PASS" postgres:16 \\
-            psql -h "\$DB_HOST" -p "\$DB_PORT" -U "\$DB_USER" -d postgres -tAc \\
-            "SELECT 1 FROM pg_database WHERE datname='\$DB_NAME';" | grep -q 1 \\
-          || docker run --rm -e PGPASSWORD="\$DB_PASS" postgres:16 \\
-            psql -h "\$DB_HOST" -p "\$DB_PORT" -U "\$DB_USER" -d postgres -c \\
-            "CREATE DATABASE \\"\$DB_NAME\\";"
-        """
+            docker run --rm -e PGPASSWORD="\$DB_PASS" postgres:16 \\
+              psql -h "\$DB_HOST" -p "\$DB_PORT" -U "\$DB_USER" -d postgres -tAc \\
+              "SELECT 1 FROM pg_database WHERE datname='\$DB_NAME';" | grep -q 1 \\
+            || docker run --rm -e PGPASSWORD="\$DB_PASS" postgres:16 \\
+              psql -h "\$DB_HOST" -p "\$DB_PORT" -U "\$DB_USER" -d postgres -c \\
+              "CREATE DATABASE \\"\$DB_NAME\\";"
+          """
+        }
       }
     }
   }
-
+  
   post {
     success {
       echo """
