@@ -14,6 +14,8 @@ pipeline {
     choice(name: 'ENVIRONMENT', choices: ['prod', 'dev'], description: 'Qué entorno desplegar.')
     string(name: 'EXTERNAL_PORT', defaultValue: '5432', description: 'Puerto externo del contenedor.')
     string(name: 'INTERNAL_PORT', defaultValue: '5432', description: 'Puerto interno del contenedor.')
+    string(name: 'POSTGRES_USERNAME', defaultValue: 'postgres', description: 'Usuario por defecto de la base de datos.')
+    string(name: 'POSTGRES_PASSWORD', defaultValue: 'postgres', description: 'Contraseña del usuario por defecto de la base de datos.')
   }
 
   environment {
@@ -23,6 +25,8 @@ pipeline {
     TF_VAR_environment = "${params.ENVIRONMENT}"
     TF_VAR_postgres_external_port = "${params.EXTERNAL_PORT}"
     TF_VAR_postgres_internal_port = "${params.INTERNAL_PORT}"
+    TF_VAR_postgres_username = "${params.POSTGRES_USERNAME}"
+    TF_VAR_postgres_password = "${params.POSTGRES_PASSWORD}"
   }
 
   stages {
