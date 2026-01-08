@@ -1,14 +1,28 @@
-# Terraform Modules
+# Modulos de Terraform
 
-Modules in Terraform are self-contained packages of Terraform configurations that are managed as a single unit. They allow you to build complex infrastructure by breaking it down into smaller, reusable components.
+Los modulos de Terraform son paquetes autocontenidos de configuracion que se gestionan como una unidad. En este repositorio se usan para separar la red, el volumen y el contenedor de Postgres.
 
-You can find more information about modules in the [Terraform documentation](https://www.terraform.io/language/modules).
+Puedes encontrar mas informacion en la [documentacion oficial de Terraform](https://www.terraform.io/language/modules).
 
-## Usage
+## Uso
 
-1. Create a new module in the `terraform/modules` directory.
-2. Add the module to the `terraform/main.tf` file.
-3. Add the module to the `terraform/terraform.tfvars` file.
+1. Crea un nuevo modulo en el directorio `terraform/modules`.
+2. Anade el modulo en `terraform/main.tf`.
+3. Declara las variables en `terraform/variables.tf` y, si aplica, en `terraform/locals.tf`.
 
-## Example module
-There's an example module in the [`terraform/modules/hello_world`](../terraform/modules/hello_world) directory.
+## Modulos disponibles
+
+### Network
+
+- **Ruta**: `terraform/modules/network`
+- **Descripcion**: Crea o referencia una red Docker para la base de datos.
+
+### Volume
+
+- **Ruta**: `terraform/modules/volume`
+- **Descripcion**: Crea un volumen Docker para los datos de Postgres.
+
+### Postgres
+
+- **Ruta**: `terraform/modules/postgres`
+- **Descripcion**: Despliega un contenedor Docker de Postgres con red y volumen.

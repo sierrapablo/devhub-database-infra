@@ -1,49 +1,39 @@
-# Infrastructure as Code with Terraform
+# Infraestructura como Codigo con Terraform
 
-Template for IaC with Terraform
+Infraestructura como codigo para levantar una base de datos Postgres con Terraform y Docker.
 
 [![Latest Release](https://img.shields.io/github/v/release/sierrapablo/devhub-database-infra?logo=github&style=flat-square)](https://github.com/sierrapablo/devhub-database-infra/releases)
 
-> **🚧 Active Development**: This project is currently under active construction. Features, modules, and architecture are evolving and are subject to change.
+> **Desarrollo activo**: Este proyecto esta en construccion. Las funciones, modulos y la arquitectura pueden cambiar.
 
-## Overview
+## Descripcion general
 
-This repository contains the template for Infrastructure as Code (IaC) with Terraform.
+Este repositorio contiene la infraestructura como codigo (IaC) para aprovisionar Postgres en Docker con red y volumen dedicados.
 
-## Repository Structure
+## Estructura del repositorio
 
-The project is organized into several key directories, each with its own specific documentation:
+El proyecto se organiza en los siguientes directorios:
 
-| Directory                | Description                                                                                 | Documentation                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| **`terraform/`**         | The core infrastructure definition, including the `main` configuration and provider setups. | [View Documentation](./docs/terraform.md)         |
-| **`terraform/modules/`** | Reusable, self-contained Terraform modules.                                                 | [View Documentation](./docs/terraform-modules.md) |
-| **`ci/`**                | Jenkins pipelines managing the release lifecycle and versioning (Gitflow).                  | [View Documentation](./docs/ci.md)                |
-| **`.github/workflows/`** | GitHub Actions workflows for continuous integration (Format, Validate) and GitHub Releases. | [View Documentation](./docs/github-workflows.md)  |
+| Directorio               | Descripcion                                                                                   | Documentacion                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **`terraform/`**         | Definicion principal de infraestructura, con `main` y proveedores.                             | [Ver documentacion](./docs/terraform.md)          |
+| **`terraform/modules/`** | Modulos reutilizables de Terraform.                                                           | [Ver documentacion](./docs/terraform-modules.md)  |
+| **`ci/`**                | Pipelines de Jenkins para gestionar el ciclo de releases y versionado (Gitflow).              | [Ver documentacion](./docs/ci.md)                 |
 
-### Features
+### Caracteristicas
 
-- **Modular Architecture**: Leveraging Terraform modules to create reusable components.
-- **Automated Quality Checks**:
-  - **Validation**: Terraform syntax and configuration validation on every Pull Request.
-  - **Formatting**: Automatic formatting of Terraform code (`terraform fmt`) to ensure style consistency.
-- **Release Automation**:
-  - **Gitflow Strategy**: Automated version bumping, tagging, and changelog generation using Jenkins and GitHub Actions.
+- **Arquitectura modular**: Modulos de Terraform para componentes reutilizables.
+- **Provision de Postgres**: Contenedor Docker con volumen persistente y red dedicada.
+- **Controles de calidad automatizados**:
+  - **Validacion**: Verificacion de configuracion en Pull Requests.
+  - **Formateo**: `terraform fmt` para consistencia de estilo.
+- **Automatizacion de releases**:
+  - **Estrategia Gitflow**: Versionado, tagging y changelog con Jenkins.
 
-### Getting Started
+## Creditos
 
-To get started, initialize a repository based on this template **cloning only `develop` branch**, then create manually `main`: `git checkout -b main` and switch to `develop` again. After that, **update VERSION** to `0.0.0`, commit and push changes. This push manually initializes _GitHub Actions_ pipelines.
+**Pablo Sierra** - _Trabajo inicial y mantenimiento_ - [sierrapablo](https://github.com/sierrapablo)
 
-> ℹ️ Note: you can start creating branches from `develop` to implement a real _GitFlow_ strategy, or you can push over `develop` like a _Trunk-based_ strategy.
+## Licencia
 
-### Use with Jenkins
-
-If you have a Jenkins node, you can launch releases via [release.Jenkinsfile](./ci/release.Jenkinsfile). [View Documentation](./docs/ci.md).
-
-## Credits
-
-**Pablo Sierra** - _Initial work & Maintenance_ - [sierrapablo](https://github.com/sierrapablo)
-
-## License
-
-This project is licensed under the **MIT License** - see the [LICENSE](./LICENSE) file for details.
+Este proyecto se licencia bajo **MIT** - ver [LICENSE](./LICENSE) para mas detalles.
